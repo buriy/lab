@@ -9,13 +9,13 @@ from lab.store import Store
 
 
 def list_experiments():
-    root = Path(__file__).parent.parent / 'experiments'
+    root = Path(__file__).parent.parent / "experiments"
     return find_classes_in_files(root, Experiment)
 
 
 class Planner:
     def __init__(self):
-        self.store = Store('../data/experiments.json')
+        self.store = Store("../data/experiments.json")
 
     def run_experiment(self, exp_class: Union[str, Experiment]):
         if isinstance(exp_class, str):
@@ -31,12 +31,12 @@ class Planner:
         rec.set_result(scores)
         self.store.add_result(rec)
 
-    def run_multiple(self, *args):
-        if not args or args == 'all':
+    def run(self, args):
+        if not args or args == "all":
             args = [e[1] for e in list_experiments()]
         for arg in args:
             self.run_experiment(arg)
 
 
-if __name__ == '__main__':
-    Planner().run_multiple(*sys.argv[1:])
+if __name__ == "__main__":
+    Planner().run(sys.argv[1:])

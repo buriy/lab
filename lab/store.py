@@ -1,15 +1,7 @@
-import hashlib
 import json
 from pathlib import Path
 
 from lab.record import Record
-
-
-def get_hash(obj):
-    h = hashlib.md5()
-    j = json.dumps(obj, ensure_ascii=False, sort_keys=True)
-    h.update(str(j).encode())
-    return h.digest().hex()[:12]
 
 
 class Store:
@@ -39,4 +31,4 @@ class Store:
     def _save(self):
         dump = json.dumps(self.db, indent=2, ensure_ascii=False)
         Path(self.fn).parent.mkdir(exist_ok=True, parents=True)
-        Path(self.fn).write_text(dump, encoding='utf-8')
+        Path(self.fn).write_text(dump, encoding="utf-8")

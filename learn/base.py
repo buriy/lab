@@ -27,7 +27,9 @@ class Trainer:
 
 class Net:
     def __init__(self, input_size, output_size):
-        self.weights = np.random.randn(input_size, output_size) * np.sqrt(2 / (input_size + output_size))
+        self.weights = np.random.randn(input_size, output_size) * np.sqrt(
+            2 / (input_size + output_size)
+        )
         self.bias = np.zeros(output_size)
         self.inputs = None
 
@@ -59,7 +61,10 @@ class Evaluator:
             total_loss += loss.item()
             total_correct += np.sum(np.argmax(y_pred, axis=1) == y)
 
-        return {'loss': total_loss / len(dataloader), 'accuracy': total_correct / len(dataloader.dataset)}
+        return {
+            "loss": total_loss / len(dataloader),
+            "accuracy": total_correct / len(dataloader.dataset),
+        }
 
 
 class Logger:
@@ -67,10 +72,10 @@ class Logger:
         self.epochs = epochs
 
     def log(self, epoch, loss, train_acc=None, val_acc=None):
-        print(f'Epoch {epoch}/{self.epochs} | Train Loss: {loss:.4f}', end=' ')
+        print(f"Epoch {epoch}/{self.epochs} | Train Loss: {loss:.4f}", end=" ")
         if train_acc is not None:
-            print(f'| Train Acc: {train_acc:.2%}', end=' ')
+            print(f"| Train Acc: {train_acc:.2%}", end=" ")
         if val_acc is not None:
-            print(f'| Val Acc: {val_acc:.2%}')
+            print(f"| Val Acc: {val_acc:.2%}")
         else:
             print()

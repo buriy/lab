@@ -1,6 +1,11 @@
+from datasets.mnist.mnist import MNIST
 from experiments.base import Experiment
 
-class MNIST(Experiment):
+
+class Linear(Experiment):
+    ds = MNIST()
+    seed = 0
+
     def train(self):
         pass
 
@@ -8,5 +13,4 @@ class MNIST(Experiment):
         pass
 
     def get_scores(self):
-        return {
-        }
+        return {}
