@@ -1,35 +1,46 @@
 import random
-from typing import Collection, Union, Sequence, Mapping
+from typing import Union, Sequence, Mapping, List, Callable, Dict
 
 from sklearn.model_selection import train_test_split
 
 
 class Dataset:
-    data: Union[Sequence, Mapping]
+    data: dict
 
     def __init__(self, data: Union[Sequence, Mapping]):
+        if not isinstance(data, Mapping):
+            data = dict(enumerate(data))
         self.data = data
 
     def __len__(self):
         return len(self.data)
 
-    @property
-    def indices(self):
-        if isinstance(self.data, dict):
-            return list(self.data.keys())
-        else:
-            return list(range(len(self.data)))
+    def keys(self):
+        return self.data.keys()
+
+    def labeled(self):
+        return []
 
     def __getitem__(self, idx):
         return self.data[idx]
 
 
 class SupervisedDataset(Dataset):
-    labels: list
+    labels: dict
 
     def __init__(self, data: list, labels: list):
         super().__init__(data)
-        self.labels = labels
+        self.labels = dict(enumerate(labels))
+
+    def labeled(self):
+        return self.labels.keys()
+
+    def as_lists(self):
+        return [self[k] for k in self.labeled()], [self.labels[k] for k in self.labeled()]
+
+    def __iter__(self):
+        for k in self.labeled():
+            yield self[k], self.labels[k]
 
     def split(self, test_size):
         xy = (self.data, self.labels)
@@ -40,21 +51,25 @@ class SupervisedDataset(Dataset):
 class Task:
     ds_train: SupervisedDataset
     ds_test: SupervisedDataset
+    seed: int = 0
+    metrics: Dict[str, Callable]
 
-    def __init__(self, ds_train, ds_test):
-        self.ds_train = ds_train
-        self.ds_test = ds_test
+    def get_seed(self):
+        return self.seed
 
 
 class DataLoader:
-    def __init__(self, dataset: Dataset, batch_size: int, shuffle: bool = False):
+    def __init__(self, dataset: Dataset, seed: int, batch_size: int, shuffle: bool = False):
         self.dataset = dataset
         self.batch_size = batch_size
         self.shuffle = shuffle
+        self._seed = seed
 
     def __iter__(self):
         indices = self.dataset.indices
         if self.shuffle:
+            random.seed(self._seed)
+            self._seed = random.random()
             random.shuffle(indices)
 
         for start_idx in range(0, len(indices), self.batch_size):

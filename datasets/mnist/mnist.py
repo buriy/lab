@@ -1,14 +1,13 @@
 import gzip
 import os
+import urllib.request
 from pathlib import Path
 from typing import Union
 
 import numpy as np
+from sklearn.metrics import accuracy_score
 
 from datasets.data import SupervisedDataset, Task
-
-import urllib.request
-import os
 
 # Define download URLs and file names
 urls = [
@@ -19,7 +18,7 @@ urls = [
 ]
 
 
-def download(folder_path: Union[str, Path]):
+def download_mnist(folder_path: Union[str, Path]):
     for url in urls:
         file_name = url.rsplit("/", 1)[-1]
         file_path = Path(folder_path, file_name)
@@ -47,9 +46,28 @@ def load_mnist(path, kind="train"):
 
 class MNIST(Task):
     DATA_PATH = "../data/mnist"
+    metrics = {'accuracy': accuracy_score}
 
     def __init__(self):
-        download(self.DATA_PATH)
-        ds_train = SupervisedDataset(*load_mnist(self.DATA_PATH, kind="train"))
-        ds_test = SupervisedDataset(*load_mnist(self.DATA_PATH, kind="t10k"))
-        super().__init__(ds_train, ds_test)
+        download_mnist(self.DATA_PATH)
+        self.ds_train = SupervisedDataset(*load_mnist(self.DATA_PATH, kind="train"))
+        self.ds_test = SupervisedDataset(*load_mnist(self.DATA_PATH, kind="t10k"))
+
+#
+# class CIFAR10:
+#     def __init__(self):
+#         from tensorflow.keras.datasets import cifar10
+#         (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+#         self.ds_train = (x_train.reshape((50000, 3072)), y_train.ravel())
+#         self.ds_test = (x_test.reshape((10000, 3072)), y_test.ravel())
+#         self.metrics = [accuracy_score]
+#
+#
+# class SVHN:
+#     def __init__(self):
+#         from scipy.io import loadmat
+#         train = loadmat('train_32x32.mat')
+#         test = loadmat('test_32x32.mat')
+#         self.ds_train = (train['X'].reshape((73257, 3072)), train['y'].ravel() % 10)
+#         self.ds_test = (test['X'].reshape((26032, 3072)), test['y'].ravel() % 10)
+#         self.metrics = [accuracy_score]

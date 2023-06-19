@@ -13,7 +13,7 @@ def list_experiments():
     return find_classes_in_files(root, Experiment)
 
 
-class Planner:
+class Trainer:
     def __init__(self):
         self.store = Store("../data/experiments.json")
 
@@ -23,11 +23,12 @@ class Planner:
             if not exp_class:
                 print("No experiment:", exp_class)
         assert issubclass(exp_class, Experiment)
-        exp = exp_class()
-        rec = Record(exp, {})
-        exp.train()
-        exp.test()
-        scores = exp.get_scores()
+        experiment = exp_class()
+        rec = Record('train', experiment, {})
+        scores = experiment.train()
+        rec.set_result(scores)
+        rec = Record('test', experiment, {})
+        scores = experiment.test()
         rec.set_result(scores)
         self.store.add_result(rec)
 
@@ -38,5 +39,5 @@ class Planner:
             self.run_experiment(arg)
 
 
-if __name__ == "__main__":
-    Planner().run(sys.argv[1:])
+if __name__ == '__main__':
+    Trainer().run(sys.argv[1:])
