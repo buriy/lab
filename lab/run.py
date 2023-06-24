@@ -2,6 +2,8 @@ import sys
 from pathlib import Path
 from typing import Union
 
+from tqdm.auto import tqdm
+
 from experiments.base import Experiment
 from finder import find_classes_in_files, find_class_by_name
 from lab.record import Record
@@ -24,18 +26,24 @@ class Trainer:
                 print("No experiment:", exp_class)
         assert issubclass(exp_class, Experiment)
         experiment = exp_class()
-        rec = Record('train', experiment, {})
-        scores = experiment.train()
-        rec.set_result(scores)
-        rec = Record('test', experiment, {})
-        scores = experiment.test()
-        rec.set_result(scores)
-        self.store.add_result(rec)
+        rec_train = Record('train', experiment, {})
+        rec_test = Record('test', experiment, {})
+        if self.store.has_record(rec_test):
+            return
+        rec_train.start()
+        train_scores = experiment.train()
+        rec_train.set_result(train_scores)
+        self.store.add_result(rec_train)
+
+        rec_test.start()
+        test_scores = experiment.test()
+        rec_test.set_result(test_scores)
+        self.store.add_result(rec_test)
 
     def run(self, args):
         if not args or args == "all":
             args = [e[1] for e in list_experiments()]
-        for arg in args:
+        for arg in tqdm(args, desc='Experiments'):
             self.run_experiment(arg)
 
 

@@ -32,3 +32,7 @@ class Store:
         dump = json.dumps(self.db, indent=2, ensure_ascii=False)
         Path(self.fn).parent.mkdir(exist_ok=True, parents=True)
         Path(self.fn).write_text(dump, encoding="utf-8")
+
+    def has_record(self, rec: Record):
+        self._load()
+        return rec.hash in self.db

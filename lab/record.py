@@ -51,3 +51,6 @@ class Record:
 
     def json(self):
         return {k: v for k, v in self.__dict__.items() if k[:1] != "_"}
+
+    def start(self):
+        self.time_start = time.time()
